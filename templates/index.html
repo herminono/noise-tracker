@@ -1,0 +1,1410 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>NoiseTrack | Noise Monitoring System</title>
+
+    <style>
+
+        /* GLOBAL VARIABLES */
+
+        :root {
+            --navy: #142c3c;
+            --teal: #167b70;
+            --teal-light: #e9f4f1;
+            --background: #f1f5f6;
+            --white: #ffffff;
+            --muted: #64748b;
+            --border: #dce5e9;
+            --warning: #d97706;
+            --warning-light: #fff3df;
+            --error: #b91c1c;
+            --error-light: #fce8e8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--background);
+            color: var(--navy);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        /* NAVBAR */
+
+        nav {
+            background: var(--navy);
+            color: var(--white);
+            padding: 22px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 26px;
+            font-weight: bold;
+            letter-spacing: -1px;
+        }
+
+        .logo svg {
+            color: #61d5bd;
+        }
+
+        .logo span {
+            color: #61d5bd;
+        }
+
+        .nav-description {
+            color: #c4dcd9;
+            font-size: 13px;
+        }
+
+
+        /* MAIN CONTENT */
+
+        main {
+            width: 100%;
+            max-width: 1150px;
+            margin: auto;
+            padding: 48px 24px;
+            flex: 1;
+        }
+
+        .hero {
+            margin-bottom: 36px;
+        }
+
+        .eyebrow {
+            color: var(--teal);
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 14px;
+        }
+
+        .hero h1 {
+            font-size: clamp(28px, 4vw, 44px);
+            letter-spacing: -1.8px;
+            margin-bottom: 14px;
+        }
+
+        .hero-description {
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.7;
+            max-width: 650px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+        }
+
+        .card h2 {
+            font-size: 21px;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+
+        /* FORM */
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 9px;
+        }
+
+        input {
+            width: 100%;
+            border: 1px solid var(--border);
+            padding: 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 15px;
+            color: var(--navy);
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px #167b7015;
+        }
+
+        .threshold-info {
+            background: var(--teal-light);
+            color: var(--teal);
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .protection-notice {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .protection-notice svg {
+            flex-shrink: 0;
+            color: var(--teal);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: var(--teal);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #10665d;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+
+        /* NOISE INDICATOR */
+
+        .gauge {
+            display: block;
+            width: 100%;
+            max-width: 310px;
+            margin: 12px auto;
+        }
+
+        #gauge-progress {
+            transition: stroke-dasharray 0.3s,
+                        stroke 0.3s;
+        }
+
+        .noise-status {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 22px;
+        }
+
+        .indicator-description {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--muted);
+        }
+
+
+        /* RESPONSE MESSAGE */
+
+        .message {
+            display: none;
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .message.success {
+            display: block;
+            background: var(--teal-light);
+            color: var(--teal);
+        }
+
+        .message.warning {
+            display: block;
+            background: var(--warning-light);
+            color: #a16207;
+        }
+
+        .message.error {
+            display: block;
+            background: var(--error-light);
+            color: var(--error);
+        }
+
+
+        /* STATISTICS */
+
+        .statistics {
+            margin-top: 36px;
+        }
+
+        .section-heading {
+            font-size: 22px;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            padding: 22px;
+            border-radius: 12px;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .stat-header p {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .stat-header svg {
+            flex-shrink: 0;
+            color: var(--teal);
+        }
+
+        .stat-card h3 {
+            font-size: 28px;
+            letter-spacing: -1px;
+            overflow-wrap: anywhere;
+        }
+
+        #stats-error {
+            color: var(--error);
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+
+        /* SPAM PROTECTION */
+
+        .protection-section {
+            margin-top: 28px;
+        }
+
+        .protection-heading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .protection-heading svg {
+            color: var(--teal);
+        }
+
+        .protection-heading h2 {
+            margin-bottom: 0;
+        }
+
+        .protection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .protection-item {
+            border-left: 3px solid var(--teal);
+            padding-left: 16px;
+        }
+
+        .protection-item h3 {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .protection-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .protection-description {
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--muted);
+        }
+
+
+        /* FOOTER */
+
+        footer {
+            padding: 24px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+
+        /* RESPONSIVE DESIGN */
+
+        @media (max-width: 768px) {
+
+            nav {
+                padding: 20px 24px;
+            }
+
+            .nav-description {
+                display: none;
+            }
+
+            main {
+                padding: 32px 18px;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .protection-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .card {
+                padding: 22px;
+            }
+
+        }
+
+        @media (max-width: 360px) {
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav>
+
+        <div class="logo">
+
+            <svg width="28" height="28"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2"
+                 stroke-linecap="round"
+                 aria-hidden="true">
+
+                <path d="M2 10v4"/>
+                <path d="M6 6v12"/>
+                <path d="M10 3v18"/>
+                <path d="M14 8v8"/>
+                <path d="M18 5v14"/>
+                <path d="M22 10v4"/>
+
+            </svg>
+
+            <div>Noise<span>Track</span></div>
+
+        </div>
+
+        <p class="nav-description">
+            Environmental Monitoring
+        </p>
+
+    </nav>
+
+
+    <main>
+
+        <!-- HERO -->
+
+        <section class="hero">
+
+            <p class="eyebrow">
+                NOISE MONITORING SYSTEM
+            </p>
+
+            <h1>Monitor your environment.</h1>
+
+            <p class="hero-description">
+                Record noise levels and stay informed
+                with automated email alerts whenever
+                the configured threshold is reached.
+            </p>
+
+        </section>
+
+
+        <!-- MAIN DASHBOARD -->
+
+        <section class="dashboard">
+
+            <!-- INPUT FORM -->
+
+            <div class="card">
+
+                <h2>Record noise</h2>
+
+                <p class="subtitle">
+                    Enter your email address and noise reading.
+                </p>
+
+                <form id="noise-form">
+
+                    <div class="form-group">
+
+                        <label for="email">
+                            Email address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="you@example.com"
+                            maxlength="254"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="noise-level">
+                            Noise level (dB)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="noise-level"
+                            placeholder="Enter noise level"
+                            min="0"
+                            step="any"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="threshold-info">
+
+                        Alert threshold:
+                        <strong id="threshold">--</strong> dB.
+
+                        <br>
+
+                        Email alerts may be triggered when
+                        this threshold is reached.
+
+                    </div>
+
+
+                    <!-- SPAM NOTICE -->
+
+                    <div class="protection-notice">
+
+                        <svg width="17" height="17"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2"
+                             stroke-linecap="round"
+                             stroke-linejoin="round"
+                             aria-hidden="true">
+
+                            <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/>
+                            <path d="m9 12 2 2 4-4"/>
+
+                        </svg>
+
+                        <p>
+                            Email alerts are rate-limited
+                            to prevent excessive notifications.
+                            Use your own email address.
+                        </p>
+
+                    </div>
+
+                    <button type="submit" id="submit-button">
+                        Submit reading
+                    </button>
+
+                    <div
+                        id="message"
+                        class="message"
+                        role="status"
+                        aria-live="polite"
+                    ></div>
+
+                </form>
+
+            </div>
+
+
+            <!-- NOISE INDICATOR -->
+
+            <div class="card">
+
+                <h2>Noise indicator</h2>
+
+                <p class="subtitle">
+                    Visual representation of your input.
+                </p>
+
+                <svg
+                    class="gauge"
+                    viewBox="0 0 240 160"
+                    role="img"
+                    aria-label="Noise level indicator"
+                >
+
+                    <path
+                        d="M28 120 A92 92 0 0 1 212 120"
+                        fill="none"
+                        stroke="#e7edef"
+                        stroke-width="15"
+                        stroke-linecap="round"
+                    />
+
+                    <path
+                        id="gauge-progress"
+                        d="M28 120 A92 92 0 0 1 212 120"
+                        fill="none"
+                        stroke="#167b70"
+                        stroke-width="15"
+                        stroke-linecap="round"
+                        pathLength="100"
+                        stroke-dasharray="0 100"
+                    />
+
+                    <text
+                        id="gauge-value"
+                        x="120"
+                        y="95"
+                        text-anchor="middle"
+                        font-size="38"
+                        font-weight="bold"
+                        fill="#142c3c"
+                    >--</text>
+
+                    <text
+                        x="120"
+                        y="115"
+                        text-anchor="middle"
+                        font-size="13"
+                        fill="#64748b"
+                    >dB</text>
+
+                    <text
+                        x="28"
+                        y="145"
+                        text-anchor="middle"
+                        font-size="12"
+                        fill="#64748b"
+                    >0</text>
+
+                    <text
+                        id="gauge-max"
+                        x="212"
+                        y="145"
+                        text-anchor="middle"
+                        font-size="12"
+                        fill="#64748b"
+                    >120</text>
+
+                </svg>
+
+                <p class="noise-status" id="noise-status">
+                    Waiting for input
+                </p>
+
+                <p
+                    class="indicator-description"
+                    id="indicator-description"
+                >
+                    Enter a noise level to see its status.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- STATISTICS -->
+
+        <section class="statistics">
+
+            <h2 class="section-heading">
+                Noise statistics
+            </h2>
+
+            <p class="subtitle">
+                Overview of all recorded noise readings.
+            </p>
+
+            <div class="stats-grid">
+
+                <!-- TOTAL READINGS -->
+
+                <div class="stat-card">
+
+                    <div class="stat-header">
+
+                        <p>Total readings</p>
+
+                        <svg width="20" height="20"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2"
+                             aria-hidden="true">
+
+                            <path d="M2 12h4l3-9 6 18 3-9h4"/>
+
+                        </svg>
+
+                    </div>
+
+                    <h3 id="total-logs">--</h3>
+
+                </div>
+
+
+                <!-- AVERAGE READING -->
+
+                <div class="stat-card">
+
+                    <div class="stat-header">
+
+                        <p>Average reading</p>
+
+                        <svg width="20" height="20"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2"
+                             stroke-linecap="round"
+                             aria-hidden="true">
+
+                            <path d="M4 20V10"/>
+                            <path d="M10 20V4"/>
+                            <path d="M16 20v-7"/>
+                            <path d="M22 20V7"/>
+
+                        </svg>
+
+                    </div>
+
+                    <h3 id="average-noise">--</h3>
+
+                </div>
+
+
+                <!-- HIGHEST READING -->
+
+                <div class="stat-card">
+
+                    <div class="stat-header">
+
+                        <p>Highest reading</p>
+
+                        <svg width="20" height="20"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2"
+                             stroke-linecap="round"
+                             stroke-linejoin="round"
+                             aria-hidden="true">
+
+                            <path d="m3 17 6-6 4 4 8-8"/>
+                            <path d="M15 7h6v6"/>
+
+                        </svg>
+
+                    </div>
+
+                    <h3 id="highest-noise">--</h3>
+
+                </div>
+
+
+                <!-- EMAILS SENT -->
+
+                <div class="stat-card">
+
+                    <div class="stat-header">
+
+                        <p>Alerts sent</p>
+
+                        <svg width="20" height="20"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2"
+                             stroke-linecap="round"
+                             stroke-linejoin="round"
+                             aria-hidden="true">
+
+                            <rect x="3" y="5"
+                                  width="18" height="14"
+                                  rx="2"/>
+
+                            <path d="m3 7 9 6 9-6"/>
+
+                        </svg>
+
+                    </div>
+
+                    <h3 id="total-alerts">--</h3>
+
+                </div>
+
+            </div>
+
+            <p id="stats-error"></p>
+
+        </section>
+
+
+        <!-- SPAM PROTECTION INFORMATION -->
+
+        <section class="protection-section">
+
+            <div class="card">
+
+                <div class="protection-heading">
+
+                    <svg width="24" height="24"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         stroke-linejoin="round"
+                         aria-hidden="true">
+
+                        <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/>
+                        <path d="m9 12 2 2 4-4"/>
+
+                    </svg>
+
+                    <h2>Email protection</h2>
+
+                </div>
+
+                <p class="subtitle">
+                    Notification limits help prevent
+                    excessive email delivery.
+                    Noise readings are still recorded
+                    even when notifications are limited.
+                </p>
+
+                <div class="protection-grid">
+
+                    <div class="protection-item">
+
+                        <h3>Email cooldown</h3>
+
+                        <p
+                            class="protection-value"
+                            id="cooldown-limit"
+                        >
+                            5 minutes
+                        </p>
+
+                        <p class="protection-description">
+                            Minimum interval between email
+                            attempts to the same recipient.
+                        </p>
+
+                    </div>
+
+                    <div class="protection-item">
+
+                        <h3>Daily recipient limit</h3>
+
+                        <p
+                            class="protection-value"
+                            id="daily-limit"
+                        >
+                            10 emails
+                        </p>
+
+                        <p class="protection-description">
+                            Maximum email attempts per
+                            recipient within 24 hours.
+                        </p>
+
+                    </div>
+
+                    <div class="protection-item">
+
+                        <h3>Global daily limit</h3>
+
+                        <p
+                            class="protection-value"
+                            id="global-limit"
+                        >
+                            50 emails
+                        </p>
+
+                        <p class="protection-description">
+                            Maximum email attempts across
+                            the system within 24 hours.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+        &copy; 2026 NoiseTrack. All rights reserved.
+    </footer>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script>
+
+        const API_URL = "http://127.0.0.1:5000";
+
+        let threshold = null;
+
+        const form = document.getElementById("noise-form");
+
+        const noiseInput =
+            document.getElementById("noise-level");
+
+        const submitButton =
+            document.getElementById("submit-button");
+
+        const messageBox =
+            document.getElementById("message");
+
+
+        // GET SYSTEM CONFIGURATION
+
+        async function getConfiguration() {
+
+            try {
+
+                const response = await fetch(`${API_URL}/api`);
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Failed to load configuration"
+                    );
+                }
+
+                const data = await response.json();
+
+                if (
+                    typeof data.threshold !== "number" ||
+                    !Number.isFinite(data.threshold)
+                ) {
+                    throw new Error("Invalid threshold");
+                }
+
+                threshold = data.threshold;
+
+                document.getElementById("threshold")
+                    .textContent = threshold;
+
+
+                // SPAM PROTECTION CONFIGURATION
+
+                if (Number.isInteger(data.email_cooldown)) {
+
+                    document.getElementById("cooldown-limit")
+                        .textContent =
+                        `${data.email_cooldown} minutes`;
+
+                }
+
+                if (Number.isInteger(data.daily_email_limit)) {
+
+                    document.getElementById("daily-limit")
+                        .textContent =
+                        `${data.daily_email_limit} emails`;
+
+                }
+
+                if (Number.isInteger(data.global_email_limit)) {
+
+                    document.getElementById("global-limit")
+                        .textContent =
+                        `${data.global_email_limit} emails`;
+
+                }
+
+                updateIndicator();
+
+            } catch (error) {
+
+                threshold = null;
+
+                document.getElementById("threshold")
+                    .textContent = "Unavailable";
+
+                document.getElementById("cooldown-limit")
+                    .textContent = "--";
+
+                document.getElementById("daily-limit")
+                    .textContent = "--";
+
+                document.getElementById("global-limit")
+                    .textContent = "--";
+
+                updateIndicator();
+
+                console.error(error);
+
+            }
+
+        }
+
+
+        // UPDATE NOISE INDICATOR
+
+        function updateIndicator() {
+
+            const gaugeValue =
+                document.getElementById("gauge-value");
+
+            const gaugeProgress =
+                document.getElementById("gauge-progress");
+
+            const gaugeMax =
+                document.getElementById("gauge-max");
+
+            const noiseStatus =
+                document.getElementById("noise-status");
+
+            const description =
+                document.getElementById(
+                    "indicator-description"
+                );
+
+            const noise = Number(noiseInput.value);
+
+
+            // EMPTY OR INVALID INPUT
+
+            if (
+                noiseInput.value === "" ||
+                !Number.isFinite(noise) ||
+                noise < 0
+            ) {
+
+                gaugeValue.textContent = "--";
+
+                gaugeMax.textContent = "120";
+
+                gaugeProgress.setAttribute(
+                    "stroke-dasharray", "0 100"
+                );
+
+                noiseStatus.textContent =
+                    "Waiting for valid input";
+
+                noiseStatus.style.color = "#64748b";
+
+                description.textContent =
+                    "Enter a noise level to see its status.";
+
+                return;
+
+            }
+
+
+            // UPDATE GAUGE
+
+            const maxLevel = Math.max(
+                120, noise, threshold ?? 0
+            );
+
+            const progress = (noise / maxLevel) * 100;
+
+            gaugeValue.textContent = noise;
+
+            gaugeMax.textContent = maxLevel;
+
+            gaugeProgress.setAttribute(
+                "stroke-dasharray",
+                `${progress} 100`
+            );
+
+
+            // CHECK THRESHOLD
+
+            if (threshold === null) {
+
+                gaugeProgress.setAttribute(
+                    "stroke", "#64748b"
+                );
+
+                noiseStatus.style.color = "#64748b";
+
+                noiseStatus.textContent =
+                    "Threshold unavailable";
+
+                description.textContent =
+                    "The backend threshold could not be loaded.";
+
+            } else if (noise >= threshold) {
+
+                gaugeProgress.setAttribute(
+                    "stroke", "#d97706"
+                );
+
+                noiseStatus.style.color = "#d97706";
+
+                noiseStatus.textContent =
+                    "Threshold reached";
+
+                description.textContent =
+                    "An email alert may be sent, subject " +
+                    "to notification limits.";
+
+            } else {
+
+                gaugeProgress.setAttribute(
+                    "stroke", "#167b70"
+                );
+
+                noiseStatus.style.color = "#167b70";
+
+                noiseStatus.textContent =
+                    "Below threshold";
+
+                description.textContent =
+                    "No email notification is required.";
+
+            }
+
+        }
+
+
+        noiseInput.addEventListener(
+            "input",
+            updateIndicator
+        );
+
+
+        // DISPLAY RESPONSE MESSAGE
+
+        function showMessage(message, type) {
+
+            messageBox.textContent = message;
+
+            messageBox.className = `message ${type}`;
+
+        }
+
+
+        // SUBMIT NOISE READING
+
+        form.addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const email = document.getElementById("email")
+                .value.trim();
+
+            const noiseLevel = Number(noiseInput.value);
+
+            submitButton.disabled = true;
+
+            submitButton.textContent = "Submitting...";
+
+            messageBox.className = "message";
+
+            messageBox.textContent = "";
+
+
+            try {
+
+                const response = await fetch(`${API_URL}/noise`, {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        email: email,
+                        noise_level: noiseLevel
+                    })
+
+                });
+
+
+                const data = await response.json();
+
+
+                // UPDATE THRESHOLD
+
+                if (Number.isFinite(data.threshold)) {
+
+                    threshold = data.threshold;
+
+                    document.getElementById("threshold")
+                        .textContent = threshold;
+
+                    updateIndicator();
+
+                }
+
+
+                // EMAIL DELIVERY FAILED
+
+                if (
+                    response.status === 502 &&
+                    data.id !== undefined &&
+                    data.alert_sent === false
+                ) {
+
+                    showMessage(
+                        "Reading saved, but the email " +
+                        "could not be sent.",
+                        "error"
+                    );
+
+                    await getStats();
+
+                }
+
+
+                // OTHER SERVER ERRORS
+
+                else if (!response.ok) {
+
+                    showMessage(
+                        data.message || "Something went wrong.",
+                        "error"
+                    );
+
+                }
+
+
+                // SPAM PROTECTION ACTIVATED
+
+                else if (data.spam_protected) {
+
+                    showMessage(
+                        `Reading saved. ${data.message}`,
+                        "warning"
+                    );
+
+                    await getStats();
+
+                }
+
+
+                // EMAIL SENT SUCCESSFULLY
+
+                else if (data.alert_sent) {
+
+                    showMessage(
+                        `Reading saved. Email alert sent to ${email}.`,
+                        "success"
+                    );
+
+                    await getStats();
+
+                }
+
+
+                // NO EMAIL REQUIRED
+
+                else {
+
+                    showMessage(
+                        "Reading saved. Noise level is " +
+                        "below the threshold.",
+                        "success"
+                    );
+
+                    await getStats();
+
+                }
+
+            } catch (error) {
+
+                showMessage(
+                    "Unable to confirm submission. Check " +
+                    "the connection before retrying.",
+                    "error"
+                );
+
+                console.error(error);
+
+            } finally {
+
+                submitButton.disabled = false;
+
+                submitButton.textContent = "Submit reading";
+
+            }
+
+        });
+
+
+        // FORMAT DECIBEL VALUE
+
+        function formatDecibel(value) {
+
+            if (
+                value === null ||
+                value === undefined ||
+                !Number.isFinite(Number(value))
+            ) {
+
+                return "--";
+
+            }
+
+            return `${Number(value).toFixed(1)} dB`;
+
+        }
+
+
+        // GET STATISTICS
+
+        async function getStats() {
+
+            const statsError =
+                document.getElementById("stats-error");
+
+            try {
+
+                const response =
+                    await fetch(`${API_URL}/stats`);
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Failed to load statistics"
+                    );
+
+                }
+
+                const data = await response.json();
+
+
+                document.getElementById("total-logs")
+                    .textContent = data.total_logs ?? 0;
+
+
+                document.getElementById("average-noise")
+                    .textContent =
+                    formatDecibel(data.average_noise);
+
+
+                document.getElementById("highest-noise")
+                    .textContent =
+                    formatDecibel(data.highest_noise);
+
+
+                document.getElementById("total-alerts")
+                    .textContent = data.total_alerts ?? 0;
+
+
+                statsError.textContent = "";
+
+            } catch (error) {
+
+                statsError.textContent =
+                    "Unable to refresh statistics.";
+
+                console.error(error);
+
+            }
+
+        }
+
+
+        // INITIALIZE PAGE
+
+        getConfiguration();
+
+        getStats();
+
+    </script>
+
+</body>
+</html>
